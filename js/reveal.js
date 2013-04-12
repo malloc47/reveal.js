@@ -382,6 +382,13 @@ var Reveal = (function(){
 			disable3DLinks();
 		}
 
+        if( !config.scale ) {
+            dom.slides.style.maxWidth = '900px';
+            dom.slides.style.minHeight = '600px';
+            dom.slides.style.width = '80%';
+            dom.slides.style.height = '';
+        }
+
 		// Load the theme in the config, if it's not already loaded
 		if( config.theme && dom.theme ) {
 			var themeURL = dom.theme.getAttribute( 'href' );
