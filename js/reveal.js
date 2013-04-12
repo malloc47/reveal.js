@@ -67,6 +67,9 @@ var Reveal = (function(){
 			// Apply a 3D roll to links on hover
 			rollingLinks: true,
 
+			// Configure interface scaling
+			scale: true,
+
 			// Theme (see /css/theme)
 			theme: null,
 
@@ -653,37 +656,40 @@ var Reveal = (function(){
 
 		if( dom.wrapper ) {
 
-			// Available space to scale within
-			var availableWidth = dom.wrapper.offsetWidth,
-				availableHeight = dom.wrapper.offsetHeight;
-
-			// Reduce available space by margin
-			availableWidth -= ( availableHeight * config.margin );
-			availableHeight -= ( availableHeight * config.margin );
-
 			// Dimensions of the content
 			var slideWidth = config.width,
-				slideHeight = config.height;
+			slideHeight = config.height;
 
-			// Slide width may be a percentage of available width
-			if( typeof slideWidth === 'string' && /%$/.test( slideWidth ) ) {
-				slideWidth = parseInt( slideWidth, 10 ) / 100 * availableWidth;
+			if( config.scale ) {
+
+				// Available space to scale within
+				var availableWidth = dom.wrapper.offsetWidth,
+				availableHeight = dom.wrapper.offsetHeight;
+
+				// Reduce available space by margin
+				availableWidth -= ( availableHeight * config.margin );
+				availableHeight -= ( availableHeight * config.margin );
+
+				// Slide width may be a percentage of available width
+				if( typeof slideWidth === 'string' && /%$/.test( slideWidth ) ) {
+					slideWidth = parseInt( slideWidth, 10 ) / 100 * availableWidth;
+				}
+
+				// Slide height may be a percentage of available height
+				if( typeof slideHeight === 'string' && /%$/.test( slideHeight ) ) {
+					slideHeight = parseInt( slideHeight, 10 ) / 100 * availableHeight;
+				}
+
+				dom.slides.style.width = slideWidth + 'px';
+				dom.slides.style.height = slideHeight + 'px';
+
+				// Determine scale of content to fit within available space
+				scale = Math.min( availableWidth / slideWidth, availableHeight / slideHeight );
+
+				// Respect max/min scale settings
+				scale = Math.max( scale, config.minScale );
+				scale = Math.min( scale, config.maxScale );
 			}
-
-			// Slide height may be a percentage of available height
-			if( typeof slideHeight === 'string' && /%$/.test( slideHeight ) ) {
-				slideHeight = parseInt( slideHeight, 10 ) / 100 * availableHeight;
-			}
-
-			dom.slides.style.width = slideWidth + 'px';
-			dom.slides.style.height = slideHeight + 'px';
-
-			// Determine scale of content to fit within available space
-			scale = Math.min( availableWidth / slideWidth, availableHeight / slideHeight );
-
-			// Respect max/min scale settings
-			scale = Math.max( scale, config.minScale );
-			scale = Math.min( scale, config.maxScale );
 
 			// Prefer applying scale via zoom since Chrome blurs scaled content
 			// with nested transforms
@@ -719,7 +725,13 @@ var Reveal = (function(){
 						slide.style.top = 0;
 					}
 					else {
-						slide.style.top = Math.max( - ( slide.offsetHeight / 2 ) - 20, -slideHeight / 2 ) + 'px';
+						if( config.scale ) {
+							slide.style.top = Math.max( - ( slide.offsetHeight / 2 ) - 20, -slideHeight / 2 ) + 'px';
+						}
+						else {
+							var minTop = -dom.wrapper.offsetHeight / 2;
+							slide.style.top = Math.max( - ( slide.offsetHeight / 2 ) - 20, minTop ) + 'px';
+						}
 					}
 				}
 				else {
